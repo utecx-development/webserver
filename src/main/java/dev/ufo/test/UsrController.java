@@ -18,11 +18,11 @@ public class UsrController implements Path {
         Map<String, String> map = req.getParameters();
 
         if (map.isEmpty()) {
-            return "kann nd sein";
+            return "not found";
         }
 
         if (!map.containsKey("id")){
-            return "kann nd sein";
+            return "not found";
         }
 
         int i;
@@ -30,7 +30,7 @@ public class UsrController implements Path {
         try {
             i = Integer.parseInt(map.get("id"));
         } catch (Exception e){
-            return "kann nd sein";
+            return "bad request";
         }
 
         return usr.getWorker(i);
