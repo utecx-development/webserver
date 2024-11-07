@@ -1,16 +1,16 @@
 package dev.ufo.server.executors;
 
-import com.sun.net.httpserver.HttpExchange;
 import dev.ufo.Main;
+import dev.ufo.server.etc.SimpleExchange;
 import dev.ufo.server.object.Request;
+import dev.ufo.server.object.ResponseMapping;
 import dev.ufo.usr.pathimp.Path;
 
 import java.io.File;
-import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 
-public class HtmlExecutor implements Executor{
+public class FileExecutor implements Executor{
 
     private final static String executedPath;
     static {
@@ -22,8 +22,7 @@ public class HtmlExecutor implements Executor{
     }
 
     @Override
-    public void finalExecute(Request req, Path path, HttpExchange exchange) {
-
+    public ResponseMapping fileResponse(Request req, Path path) {
         try {
             System.out.println(req.getPath());
             String s = executedPath + req.getPath().replace("/", File.separator);
@@ -33,20 +32,18 @@ public class HtmlExecutor implements Executor{
                 s = s + "index.html";
             }
             File file = new File(s);
+
+            if (!file.exists()) {
+                return new ResponseMapping("<html>file not found</html>".getBytes(), "text/html");
+            }
+
             String mimeType = Files.probeContentType(file.toPath());
 
             if (mimeType == null) {
                 mimeType = "text/html";
             }
-            exchange.getResponseHeaders().set("Content-Type", mimeType);
 
-            // Sende die gesammelten Daten an den Client
-            byte[] result = Files.readAllBytes(file.toPath()); //outputStream.toByteArray();
-
-            exchange.sendResponseHeaders(200, result.length);
-            OutputStream os = exchange.getResponseBody();
-            os.write(result);
-            os.close();
+            return new ResponseMapping(Files.readAllBytes(file.toPath()), mimeType);
 
         } catch (Exception e) {
             throw new RuntimeException(e);
