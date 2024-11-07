@@ -5,7 +5,7 @@ import dev.ufo.server.object.Request;
 public interface Path {
 
     default String get(Request req) {
-        //TODO: add support for default html pages (404 in this case)
+        //TODO: add support for default http pages (404 in this case)
         return "404";
     }
 

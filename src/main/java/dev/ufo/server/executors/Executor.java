@@ -1,7 +1,7 @@
 package dev.ufo.server.executors;
 
-import com.sun.net.httpserver.HttpExchange;
 import dev.ufo.server.object.Request;
+import dev.ufo.server.object.ResponseMapping;
 import dev.ufo.usr.pathimp.Path;
 
 public interface Executor {
@@ -10,6 +10,8 @@ public interface Executor {
         return "404";
     };
 
-    default void finalExecute(Request req, Path path, HttpExchange exchange) {}
+    default ResponseMapping fileResponse(Request req, Path path) {
+        return null;
+    }
 
 }
