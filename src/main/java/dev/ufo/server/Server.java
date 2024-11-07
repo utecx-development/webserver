@@ -2,10 +2,10 @@ package dev.ufo.server;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
+import dev.ufo.server.etc.SimpleExchange;
 import dev.ufo.server.object.Request;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.util.Objects;
 
@@ -23,7 +23,6 @@ public class Server {
             server.createContext("/", this::handleRequest);
             server.setExecutor(null);
             server.start();
-            System.out.println("Server started on port " + port);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -31,28 +30,21 @@ public class Server {
 
     private void handleRequest(HttpExchange exchange) throws IOException {
 
-        System.out.println(1);
-
         Request request = getRequest(exchange);
-
-        System.out.println(2);
 
         String response;
         try {
-            response = framework.handleRequest(request, exchange);
+            response = framework.handleRequest(request);
             if (Objects.equals(response, "--")) {
                 return;
             }
         } catch (Exception e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
 
-        System.out.println(3);
+        SimpleExchange.respond(response.getBytes(), exchange, null);
 
-        exchange.sendResponseHeaders(200, response.getBytes().length);
-        OutputStream os = exchange.getResponseBody();
-        os.write(response.getBytes());
-        os.close();
     }
 
     private static Request getRequest(HttpExchange exchange) {
@@ -82,7 +74,8 @@ public class Server {
                 exchange.getRequestMethod(),
                 //new IpAddress(exchange.getRemoteAddress()),
                 parameters,
-                fileName
+                fileName,
+                exchange
         );
     }
 }
